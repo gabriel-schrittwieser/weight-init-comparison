@@ -26,3 +26,7 @@ Thumbs.db
 
 # PyTorch cache
 ~/.cache/torch_extensions/
+
+# Images
+*.png
+/data

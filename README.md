@@ -1,6 +1,6 @@
 # Weight Initialization Comparison
 
-### Setup
+## Setup
 
 Set up virtual environment:
 ```shell
@@ -15,7 +15,7 @@ pip install -r requirements.txt
 
 ---
 
-### `mlp.py` - Neural Network Architecture
+## `mlp.py` - Neural Network Architecture
 
 This is where the neural network architecture is defined. In this case, a basic Multilayer Perceptron (MLP) using ReLU activations.
 
@@ -110,9 +110,30 @@ In summary, this code builds a basic feedforward neural network (MLP) with:
 
 ---
 
-### `init_utils.py` - Weight Initialization Techniques
+## `init_utils.py` - Weight Initialization Techniques
 
 ```py
 def apply_weight_initialization(model: nn.Module, method: str = "he"):
 ```
 We define a function that can be called with any model to initialize its weights, either via He, or Orthogonal initialization.
+
+```py
+for layer in model.modules():
+```
+`model.modules()` iterates through all layers in the model, that way we can apply initialization to the layers we care about - in this case, `nn.Linear`, given by `if isinstance(layer, nn.Linear):`. Other types of layers such as activation or dropout are skipped.
+
+```py
+nn.init.kaiming_normal_(layer.weight, nonlinearity='relu')
+```
+This applies the `He initialization` to the `weight` of the layer. Via `nonlinearity='relu'`, we tell `PyTorch` that we're using `ReLU` activations, which affects the variance scaling. (variance scaling meaning that we want the variance of the activations (or gradients) to stay roughly the same across layers)
+
+```py
+if layer.bias is not None:
+  nn.init.zeros_(layer.bias)
+```
+He's method doesn't specify anything for bias terms, but it's a common and safe default to initialize them to zero. 0 won't hinder learning since biases are independent from the input.  
+
+```py
+nn.init.orthogonal_(layer.weight)
+```
+This function initializes the weight matrix such that `W^T*W = I`, PyTorch randomly generates an orthogonal matrix with the same shape as the layer weight. Bias is again initialized to zero.
